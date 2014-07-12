@@ -2,7 +2,7 @@ class CreateAutostatusTrackers < ActiveRecord::Migration
   def change
     create_table :autostatus_trackers do |t|
 
-      t.references :traker
+      t.references :tracker
 
       t.references :autostatus_rule_definition
 

@@ -2,13 +2,13 @@ require "redmine"
 
 # Patches to the Redmine core.
 ActionDispatch::Callbacks.to_prepare do 
-  # require_dependency 'member'
-  # require 'patches/membership_patch'
-  # # Guards against including the module multiple time (like in tests)
-  # # and registering multiple callbacks
-  # unless Member.included_modules.include? MembershipPatch
-  #   Member.send(:include, MembershipPatch)
-  # end
+  require_dependency 'issue'
+  require 'patches/autostatus_issue_patch'
+  # Guards against including the module multiple time (like in tests)
+  # and registering multiple callbacks
+  unless Issue.included_modules.include? AutostatusIssuePatch
+    Issue.send(:include, AutostatusIssuePatch)
+  end
 
 end
 

@@ -3,7 +3,6 @@ class CreateAutostatusRuleConditions < ActiveRecord::Migration
     create_table :autostatus_rule_conditions do |t|
       t.integer :rule_type
       t.references :tracker
-      t.integer :status
       t.references :autostatus_rule_definition
 
     end
