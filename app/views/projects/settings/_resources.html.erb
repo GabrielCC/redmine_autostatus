@@ -1,0 +1,62 @@
+<%= form_tag('/resources/settings/trackers', :method => :post) do %>
+<% settings = ResourceSetting.where(:project_id => @project.id)
+map = {"Tracker" => {
+  :visible => [],
+  :editable => []
+  }, 
+  "Role" => {
+  :visible => [],
+  :editable => []
+  }
+}
+settings.each { |e|
+  map[e.setting_object_type][e.setting_key] << e.setting_object_id
+}
+ %>
+<%= hidden_field_tag 'project_id', @project.id %>
+<fieldset>
+  <legend>Trackers</legend>
+      <% trackers = Tracker.all %>
+      <% trackers.each { |tracker|  
+        %>
+         <% check_box = check_box_tag 'trackers[visible][]', tracker.id, (map["Tracker"][:visible].include? tracker.id), {:id => 'trackers_' + tracker.name } %>
+        <%= label_tag 'trackers_' + tracker.name, check_box.html_safe + tracker.to_s %>
+
+      
+        <%
+      }
+      %>
+</fieldset>
+
+<fieldset>
+  <legend>Visible for</legend>
+      <% roles = Role.all %>
+      <% roles.each { |role|  
+        %>
+         <% check_box = check_box_tag 'roles[visible][]', role.id, (map["Role"][:visible].include? role.id), {:id => "roles_visible_#{role.id}"  } %>
+        <%= label_tag "roles_visible_#{role.id}", check_box.html_safe + role.to_s %>
+
+      
+        <%
+      }
+      %>
+</fieldset>
+
+<fieldset>
+  <legend>Editable for</legend>
+      <% roles = Role.all %>
+      <% roles.each { |role|  
+        %>
+         <% check_box = check_box_tag 'roles[editable][]', role.id, (map["Role"][:editable].include? role.id), {:id => "roles_editable_#{role.id}"  } %>
+        <%= label_tag "roles_editable_#{role.id}", check_box.html_safe + role.to_s %>
+
+      
+        <%
+      }
+      %>
+</fieldset>
+
+<p>
+<%= submit_tag l(:button_save) %>
+</p>
+<% end %>

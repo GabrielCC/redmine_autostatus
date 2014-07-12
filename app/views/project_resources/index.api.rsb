@@ -1,0 +1,10 @@
+api.array :resources do
+  @resources.each do |resource|
+    api.resource do
+      api.id resource.id
+      api.name     resource.name
+      api.code resource.code
+      api.department_name resource.department.name
+    end
+  end
+end

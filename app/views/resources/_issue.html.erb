@@ -1,0 +1,47 @@
+<% 
+visible = resources_visible(@issue, @project)
+editable = resources_editable(@issue, @project)
+%>
+<% if visible || editable %>
+	<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'resources.css', :plugin => 'redmine_resources' %>
+    <%= javascript_include_tag 'jquery.jeditable.mini.js', :plugin => 'redmine_resources' %>
+    <%= javascript_include_tag 'resources.js', :plugin => 'redmine_resources' %>
+	<% end %>
+
+	<div id='resources' class='hidden sidebar-content sidebar-resources'>
+		<h3>Resources</h3>
+		<%
+			issue_resource = IssueResource.new 
+			resources = resources_for_project(@project, @issue) 
+		%>
+		<% if editable %>
+			<%= form_for(issue_resource,{:remote => true,
+	                    :method => :post}) do |f| %>
+				<%= hidden_field_tag :project_id, @project.id %>
+				<%= hidden_field_tag :issue_id, @issue.id %>
+				<table id='resources_form'>
+					<tr>
+						<td class="estimation_cell"><%= text_field_tag :estimation %> h
+						</td>
+						<td>
+								<%= render partial: 'resources/resource_element', locals: {resources: resources.values} %>
+						</td>
+						<td class='edit_actions'>
+						<%= submit_tag l(:button_save), :class => "small button" %>	
+		        
+		       </td>
+					</tr>	
+				</table>
+			<% end %>
+		<% end %>
+		<div id='resources_list_container'>
+			<%= render partial: 'resources/list', locals: {issue: @issue, editable: editable} %>
+		</div>
+	</div>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$('#resources_container').replaceWith($('#resources'));
+	});
+	</script>
+<% end %>
