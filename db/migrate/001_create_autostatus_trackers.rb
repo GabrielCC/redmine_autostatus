@@ -9,7 +9,7 @@ class CreateAutostatusTrackers < ActiveRecord::Migration
 
     end
 
-    add_index :autostatus_trackers, :traker_id
+    add_index :autostatus_trackers, :tracker_id
 
     add_index :autostatus_trackers, :autostatus_rule_definition_id, :name => 'autostatus_tracker_rule_definition'
 
