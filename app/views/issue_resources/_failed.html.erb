@@ -1,3 +1,0 @@
- <% errors =  @issue_resource.errors.full_messages.flatten.uniq.join(', ') %>
-  alert('<%= raw(escape_javascript(l(:notice_failed_to_save_resource, :errors => errors))) %>');
-$('input.button', $('#new_issue_resource')).removeAttr('disabled');
