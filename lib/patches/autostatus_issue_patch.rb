@@ -20,7 +20,7 @@ module AutostatusIssuePatch
 
     def apply_autostatus_rules
       #find if we have rules
-      rules = AutostatusRuleDefinition.find_all_by_tracker_and_current_status_id(tracker_id, status_id)
+      rules = AutostatusRuleDefinition.find_all_for(tracker_id, status_id)
       rules.each do |rule|
         next unless rule.valid self
         old_status = self.status.name
