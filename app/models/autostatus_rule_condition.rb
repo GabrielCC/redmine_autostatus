@@ -8,7 +8,7 @@ class AutostatusRuleCondition < ActiveRecord::Base
   RULE_TYPE_SINGLE = 1;
   RULE_TYPE_ALL = 2;
 
-  def valid?(issue)
+  def valid(issue)
   	@total_valid_children = Issue.where(
   		:parent_id => issue.id,
   		:status_id => autostatus_rule_condition_statuses.pluck(:issue_status_id),
@@ -31,11 +31,11 @@ class AutostatusRuleCondition < ActiveRecord::Base
   end
 
   def single_rules_valid?
-    total_valid_children >= 1
+    @total_valid_children >= 1
   end
 
   def all_rules_valid?
     total_children = Issue.where(:parent_id => issue.id, :tracker_id => tracker_id).count
-    total_children == total_valid_children && total_children > 0
+    total_children == @total_valid_children && total_children > 0
   end
 end

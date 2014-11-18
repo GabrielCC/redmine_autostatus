@@ -23,12 +23,10 @@ class AutostatusRuleDefinition < ActiveRecord::Base
   end
 
   def valid(issue)
-    conditions = autostatus_rule_condition
-    issue_rule_status = true
-    conditions.each { |condition|
-      issue_rule_status = issue_rule_status && condition.valid(issue)
-    }
-    issue_rule_status
+    autostatus_rule_condition.each do |condition|
+      return false unless condition.valid(issue)
+    end
+    true
   end
 
   def self.populate
@@ -36,37 +34,43 @@ class AutostatusRuleDefinition < ActiveRecord::Base
     AutostatusTracker.destroy_all
     AutostatusRuleCondition.destroy_all
     AutostatusCurrentStatus.destroy_all
-    rules = self.populating_rules
-    rules.each do |rule|
+
+    populating_rules.each do |rule|
       rule_definition = AutostatusRuleDefinition.new
       rule_definition.target_status_id = IssueStatus.find_by_name(rule[:target_status]).id
       rule_definition.save
 
       rule[:tracker].each do |tracker|
         feature = Tracker.find_by_name tracker
-        autostatus_tracker = AutostatusTracker.new
-        autostatus_tracker.autostatus_rule_definition = rule_definition
-        autostatus_tracker.tracker_id = feature.id
-        autostatus_tracker.save
+        tracker = AutostatusTracker.new
+        tracker.autostatus_rule_definition = rule_definition
+        tracker.tracker_id = feature.id
+        tracker.save
       end
-      rule[:current_status].each do |current_status|
-        autostatus_current_status = AutostatusCurrentStatus.new
-        autostatus_current_status.issue_status_id = IssueStatus.find_by_name(current_status).id
-        autostatus_current_status.autostatus_rule_definition = rule_definition
-        autostatus_current_status.save
-      end
-      rule[:conditions].each do |condition|
-        autostatus_rule_condition = AutostatusRuleCondition.new
-        autostatus_rule_condition.rule_type = condition[:rule_type]
-        autostatus_rule_condition.tracker_id = Tracker.find_by_name(condition[:tracker]).id
-        autostatus_rule_condition.autostatus_rule_definition = rule_definition
-        autostatus_rule_condition.save
 
-        condition[:status].each do |status|
-          autostatus_rule_condition_status = AutostatusRuleConditionStatus.new
-          autostatus_rule_condition_status.issue_status_id = IssueStatus.find_by_name(status).id
-          autostatus_rule_condition_status.autostatus_rule_condition = autostatus_rule_condition
-          autostatus_rule_condition_status.save
+      rule[:current_status].each do |current_status|
+        rule_current_status = AutostatusCurrentStatus.new
+        rule_current_status.issue_status_id = IssueStatus.find_by_name(current_status).id
+        rule_current_status.autostatus_rule_definition = rule_definition
+        rule_current_status.save
+      end
+
+      rule[:conditions].each do |condition|
+        rule_condition = AutostatusRuleCondition.new
+        rule_condition.rule_type = condition[:rule_type]
+        rule_condition.tracker_id = Tracker.find_by_name(condition[:tracker]).id if condition[:tracker]
+        rule_condition.rule_comparator = condition[:rule_comparator]
+        rule_condition.rule_field_first = condition[:rule_field_first]
+        rule_condition.rule_field_second = condition[:rule_field_second] if condition[:rule_field_second]
+        rule_condition.autostatus_rule_definition = rule_definition
+        rule_condition.save
+
+        next unless condition[:rule_values]
+        condition[:rule_values].each do |value|
+          rule_condition_status = AutostatusRuleConditionStatus.new
+          rule_condition_status.issue_status_id = IssueStatus.find_by_name(value).id
+          rule_condition_status.autostatus_rule_condition = rule_condition
+          rule_condition_status.save
         end
       end
     end
@@ -74,84 +78,84 @@ class AutostatusRuleDefinition < ActiveRecord::Base
 
   def self.populating_rules
     [
-      # 1. Tracker de tip Feature se va muta in status In Progress cand sunt indeplinite
-      # urmatoarele conditii
-      # -> feature-ul se afla in statusul Approved sau Ready For Implementation
-      # -> cel putin un subtask te tip Task cu statusul In Progress
       {
+        # 1. Tracker de tip Feature se va muta in status In Progress cand sunt indeplinite
+        # urmatoarele conditii
+        # -> feature-ul se afla in statusul Approved sau Ready For Implementation
+        # -> cel putin un subtask te tip Task cu statusul In Progress
         target_status: 'In Progress',
         tracker: ['Feature'],
         current_status: ['Approved', 'Ready For Implementation'],
         conditions: [
           {
-            rule_type: AutostatusRuleCondition::RULE_TYPE_ONE,
-            rule_tracker:  'Task',
+            rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
+            tracker:  'Task',
             rule_comparator: :in,
             rule_field_first: :status,
-            rule_field_first_values: ['In Progress']
+            rule_values: ['In Progress']
           }
         ]
       },
-      # 2. Tracker de tip Feature se va muta in status Ready for Testing cand sunt
-      # indeplinite urmatoarele conditii:
-      # -> feature-ul se afla in statusul In Progress
-      # -> toate subtask-urile de tip Task au status final
-      # -> toate subtask-urile de tip QA Task cu status New
       {
+        # 2. Tracker de tip Feature se va muta in status Ready for Testing cand sunt
+        # indeplinite urmatoarele conditii:
+        # -> feature-ul se afla in statusul In Progress
+        # -> toate subtask-urile de tip Task au status final
+        # -> toate subtask-urile de tip QA Task cu status New
         target_status: 'Ready for Testing',
         tracker: ['Feature'],
         current_status: ['In Progress'],
         conditions: [
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
-            rule_tracker:  'Task',
+            tracker:  'Task',
             rule_comparator: :in,
             rule_field_first: :status,
-            rule_field_first_values: ['Completed', 'Killed', 'Party', 'Fixed', 'Delivered']
+            rule_values: ['Completed', 'Killed', 'Party', 'Fixed', 'Delivered']
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
-            rule_tracker:  'QA Task',
+            tracker:  'QA Task',
             rule_comparator: :in,
             rule_field_first: :status,
-            rule_field_first_values: ['New']
+            rule_values: ['New']
           }
         ]
       },
-      # 3. Tracker de tip Feature se va muta in status In Testing cand sunt indeplinite
-      # urmatoarele conditii:
-      # -> feature-ul se afla in statusul Ready For Testing
-      # -> toate subtask-urile de tip Task au statusul Closed
-      # -> cel putin un subtask de tip QA Task cu status In progress
       {
+        # 3. Tracker de tip Feature se va muta in status In Testing cand sunt indeplinite
+        # urmatoarele conditii:
+        # -> feature-ul se afla in statusul Ready For Testing
+        # -> toate subtask-urile de tip Task au statusul Closed
+        # -> cel putin un subtask de tip QA Task cu status In progress
         target_status: 'In Testing',
         tracker: ['Feature'],
         current_status: ['Ready for Testing'],
         conditions: [
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
-            rule_tracker: 'Task',
+            tracker: 'Task',
             rule_comparator: :in,
             rule_field_first: :status,
-            rule_field_first_values: ['Completed']
+            rule_values: ['Completed']
           },
           {
-            rule_type: AutostatusRuleCondition::RULE_TYPE_ONE,
-            rule_tracker: 'QA Task',
+            rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
+            tracker: 'QA Task',
             rule_comparator: :in,
             rule_field_first: :status,
-            rule_field_first_values: ['In Progress']
+            rule_values: ['In Progress']
           }
         ]
       },
-      # 4. Tracker de tip Feature se va muta in status Ready For Implementation cand
-      # sunt indeplinite urmatoarele conditii:
-      # -> due date > ziua curenta
-      # -> o persoana asignata
-      # -> o descriere
-      # -> asignat intr-un sprint
-      # -> o estimare
       {
+        # 4. Tracker de tip Feature se va muta in status Ready For Implementation cand
+        # sunt indeplinite urmatoarele conditii:
+        # -> due date > ziua curenta
+        # -> o persoana asignata
+        # -> o descriere
+        # -> asignat intr-un sprint
+        # -> o estimare
         target_status: 'Ready For Implementation',
         tracker: ['Feature'],
         current_status: ['New'],
