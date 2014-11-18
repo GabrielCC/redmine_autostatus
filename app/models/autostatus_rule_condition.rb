@@ -13,10 +13,10 @@ class AutostatusRuleCondition < ActiveRecord::Base
   		:parent_id => issue.id,
   		:status_id => autostatus_rule_condition_statuses.pluck(:issue_status_id),
   		:tracker_id => tracker_id,
-  		).count
+  	).count
   	case rule_type
     when RULE_TYPE_SELF
-      self_rules_valid_for issue
+      condition_valid_for issue
     when RULE_TYPE_SINGLE
       single_rules_valid?
     when RULE_TYPE_ALL
@@ -26,27 +26,35 @@ class AutostatusRuleCondition < ActiveRecord::Base
 
   private
 
-  def self_rules_valid_for(issue)
+  def condition_valid_for(issue)
+    second_field_value = special_field_value_for issue, rule_field_second
     case rule_comparator
-    when :gt
-      issue.send(rule_field_first) > issue.send(rule_field_second)
-    when :gte
-      issue.send(rule_field_first) >= issue.send(rule_field_second)
-    when :lt
-      issue.send(rule_field_first) < issue.send(rule_field_second)
-    when :lte
-      issue.send(rule_field_first) <= issue.send(rule_field_second)
-    when :null
+    when 'in'
+      autostatus_rule_condition_statuses.pluck(:id).contains? issue.send(rule_field_first)
+    when 'gt'
+      issue.send(rule_field_first) > second_field_value
+    when 'gte'
+      issue.send(rule_field_first) >= second_field_value
+    when 'lt'
+      issue.send(rule_field_first) < second_field_value
+    when 'lte'
+      issue.send(rule_field_first) <= second_field_value
+    when 'null'
       issue.send(rule_field_first).nil?
-    when :not_null
+    when 'not_null'
       !issue.send(rule_field_first).nil?
-    when :empty
+    when 'empty'
       issue.send(rule_field_first).empty?
-    when :not_empty
+    when 'not_empty'
       !issue.send(rule_field_first).empty?
     else
       raise Exception.new 'Unknown rule comparator for the Autostatus Rule Condition'
     end
+  end
+
+  def special_field_value_for(issue, field)
+    return issue.send(field) unless field ~= /special_field\w+/
+    Time.now
   end
 
   def single_rules_valid?
