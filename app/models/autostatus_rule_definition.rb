@@ -88,7 +88,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
         current_status: ['Approved', 'Ready For Implementation'],
         conditions: [
           {
-            rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
+            rule_type: AutostatusRuleCondition::RULE_TYPE_SINGLE,
             tracker:  'Task',
             rule_comparator: :in,
             rule_field_first: :status,
@@ -140,7 +140,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
             rule_values: ['Completed']
           },
           {
-            rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
+            rule_type: AutostatusRuleCondition::RULE_TYPE_SINGLE,
             tracker: 'QA Task',
             rule_comparator: :in,
             rule_field_first: :status,

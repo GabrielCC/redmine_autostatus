@@ -16,7 +16,7 @@ class AutostatusRuleCondition < ActiveRecord::Base
   		).count
   	case rule_type
     when RULE_TYPE_SELF
-      self_rules_valid?
+      self_rules_valid_for issue
     when RULE_TYPE_SINGLE
       single_rules_valid?
     when RULE_TYPE_ALL
@@ -26,8 +26,27 @@ class AutostatusRuleCondition < ActiveRecord::Base
 
   private
 
-  def self_rules_valid?
-    false
+  def self_rules_valid_for(issue)
+    case rule_comparator
+    when :gt
+      issue.send(rule_field_first) > issue.send(rule_field_second)
+    when :gte
+      issue.send(rule_field_first) >= issue.send(rule_field_second)
+    when :lt
+      issue.send(rule_field_first) < issue.send(rule_field_second)
+    when :lte
+      issue.send(rule_field_first) <= issue.send(rule_field_second)
+    when :null
+      issue.send(rule_field_first).nil?
+    when :not_null
+      !issue.send(rule_field_first).nil?
+    when :empty
+      issue.send(rule_field_first).empty?
+    when :not_empty
+      !issue.send(rule_field_first).empty?
+    else
+      raise Exception.new 'Unknown rule comparator for the Autostatus Rule Condition'
+    end
   end
 
   def single_rules_valid?
