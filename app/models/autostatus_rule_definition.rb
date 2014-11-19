@@ -90,8 +90,8 @@ class AutostatusRuleDefinition < ActiveRecord::Base
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SINGLE,
             tracker:  'Task',
-            rule_comparator: :in,
-            rule_field_first: :status,
+            rule_comparator: 'in',
+            rule_field_first: 'status.name',
             rule_values: ['In Progress']
           }
         ]
@@ -109,15 +109,15 @@ class AutostatusRuleDefinition < ActiveRecord::Base
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
             tracker:  'Task',
-            rule_comparator: :in,
-            rule_field_first: :status,
+            rule_comparator: 'in',
+            rule_field_first: 'status.name',
             rule_values: ['Completed', 'Killed', 'Party', 'Fixed', 'Delivered']
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
             tracker:  'QA Task',
-            rule_comparator: :in,
-            rule_field_first: :status,
+            rule_comparator: 'in',
+            rule_field_first: 'status.name',
             rule_values: ['New']
           }
         ]
@@ -135,15 +135,15 @@ class AutostatusRuleDefinition < ActiveRecord::Base
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
             tracker: 'Task',
-            rule_comparator: :in,
-            rule_field_first: :status,
+            rule_comparator: 'in',
+            rule_field_first: 'status.name',
             rule_values: ['Completed']
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SINGLE,
             tracker: 'QA Task',
-            rule_comparator: :in,
-            rule_field_first: :status,
+            rule_comparator: 'in',
+            rule_field_first: 'status.name',
             rule_values: ['In Progress']
           }
         ]
@@ -162,29 +162,29 @@ class AutostatusRuleDefinition < ActiveRecord::Base
         conditions: [
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
-            rule_comparator: :gt,
-            rule_field_first: :due_date,
-            rule_field_second: :special_field_current_date
+            rule_comparator: 'gt',
+            rule_field_first: 'due_date',
+            rule_field_second: 'special_field_current_date'
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
-            rule_comparator: :not_null,
-            rule_field_first: :assignee
+            rule_comparator: 'not_null',
+            rule_field_first: 'assigned_to'
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
-            rule_comparator: :not_empty,
-            rule_field_first: :description
+            rule_comparator: 'not_empty',
+            rule_field_first: 'description'
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
-            rule_comparator: :not_null,
-            rule_field_first: :sprint
+            rule_comparator: 'not_null',
+            rule_field_first: 'fixed_version'
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
-            rule_comparator: :not_null,
-            rule_field_first: :estimation
+            rule_comparator: 'not_null',
+            rule_field_first: 'estimated_hours'
           }
         ]
       }
