@@ -53,8 +53,14 @@ class AutostatusRuleCondition < ActiveRecord::Base
   end
 
   def special_field_value_for(issue, field)
-    return issue.send(field) unless field ~= /special_field\w+/
-    Time.now
+    return issue.send(field) unless field ~= /\Aspecial_field_\w+/
+    special_field = field[14..-1]
+    case special_field
+    when 'current_date'
+      Time.now
+    else
+      raise Exception.new 'Unknown special field for the Autostatus Rule Condition'
+    end
   end
 
   def single_rules_valid?
