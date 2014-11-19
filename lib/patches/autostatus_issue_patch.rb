@@ -3,7 +3,7 @@ module AutostatusIssuePatch
     base.extend(ClassMethods)
     base.send(:include, InstanceMethods)
     base.class_eval do
-      after_save :trigger_autostatus_rules
+      around_save :trigger_autostatus_rules
     end
   end
 
@@ -12,6 +12,9 @@ module AutostatusIssuePatch
 
   module InstanceMethods
     def trigger_autostatus_rules
+      manually_changed = status_id_changed?
+      yield
+      return if manually_changed
       apply_autostatus_rules
       parent.apply_autostatus_rules if parent
     end

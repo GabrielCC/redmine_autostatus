@@ -55,7 +55,7 @@ class AutostatusRuleCondition < ActiveRecord::Base
     special_field = field[14..-1]
     case special_field
     when 'current_date'
-      Time.now
+      Date.current
     else
       raise Exception.new 'Unknown special field for the Autostatus Rule Condition'
     end
