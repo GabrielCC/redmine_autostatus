@@ -91,7 +91,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
             rule_type: AutostatusRuleCondition::RULE_TYPE_SINGLE,
             tracker:  'Task',
             rule_comparator: 'in',
-            rule_field_first: 'status.name',
+            rule_field_first: 'status_id',
             rule_values: ['In Progress']
           }
         ]
@@ -110,14 +110,14 @@ class AutostatusRuleDefinition < ActiveRecord::Base
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
             tracker:  'Task',
             rule_comparator: 'in',
-            rule_field_first: 'status.name',
+            rule_field_first: 'status_id',
             rule_values: ['Completed', 'Killed', 'Party', 'Fixed', 'Delivered']
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
             tracker:  'QA Task',
             rule_comparator: 'in',
-            rule_field_first: 'status.name',
+            rule_field_first: 'status_id',
             rule_values: ['New']
           }
         ]
@@ -126,7 +126,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
         # 3. Tracker de tip Feature se va muta in status In Testing cand sunt indeplinite
         # urmatoarele conditii:
         # -> feature-ul se afla in statusul Ready For Testing
-        # -> toate subtask-urile de tip Task au statusul Closed
+        # -> toate subtask-urile de tip Task au statusul Completed
         # -> cel putin un subtask de tip QA Task cu status In progress
         target_status: 'In Testing',
         tracker: ['Feature'],
@@ -136,14 +136,14 @@ class AutostatusRuleDefinition < ActiveRecord::Base
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
             tracker: 'Task',
             rule_comparator: 'in',
-            rule_field_first: 'status.name',
+            rule_field_first: 'status_id',
             rule_values: ['Completed']
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SINGLE,
             tracker: 'QA Task',
             rule_comparator: 'in',
-            rule_field_first: 'status.name',
+            rule_field_first: 'status_id',
             rule_values: ['In Progress']
           }
         ]

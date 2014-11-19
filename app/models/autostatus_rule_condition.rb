@@ -9,18 +9,13 @@ class AutostatusRuleCondition < ActiveRecord::Base
   RULE_TYPE_ALL = 2;
 
   def valid(issue)
-  	@total_valid_children = Issue.where(
-  		:parent_id => issue.id,
-  		:status_id => autostatus_rule_condition_statuses.pluck(:issue_status_id),
-  		:tracker_id => tracker_id,
-  	).count
   	case rule_type
     when RULE_TYPE_SELF
       condition_valid_for issue
     when RULE_TYPE_SINGLE
-      single_rules_valid?
+      single_rules_valid_for issue
     when RULE_TYPE_ALL
-      all_rules_valid?
+      all_rules_valid_for issue
   	end
   end
 
@@ -34,6 +29,25 @@ class AutostatusRuleCondition < ActiveRecord::Base
     return result unless result == :no_match
     second_field_value = special_field_value_for issue, rule_field_second
     ordering_check_for issue, first_field_value, second_field_value
+  end
+
+  def single_rules_valid_for(issue)
+    total_valid_children = Issue.where(
+      :parent_id => issue.id,
+      :status_id => autostatus_rule_condition_statuses.pluck(:issue_status_id),
+      :tracker_id => tracker_id,
+    ).count
+    total_valid_children >= 1
+  end
+
+  def all_rules_valid_for(issue)
+    total_valid_children = Issue.where(
+      :parent_id => issue.id,
+      :status_id => autostatus_rule_condition_statuses.pluck(:issue_status_id),
+      :tracker_id => tracker_id,
+    ).count
+    total_children = Issue.where(:parent_id => issue.id, :tracker_id => tracker_id).count
+    total_children == total_valid_children && total_children > 0
   end
 
   def special_field_value_for(issue, field)
@@ -70,10 +84,6 @@ class AutostatusRuleCondition < ActiveRecord::Base
     end
   end
 
-  def single_rules_valid?
-    @total_valid_children >= 1
-  end
-
   def ordering_check_for(issue, first_value, second_value)
     return false unless second_value
     return true unless first_value
@@ -89,10 +99,5 @@ class AutostatusRuleCondition < ActiveRecord::Base
     else
       raise Exception.new 'Unknown rule comparator for the Autostatus Rule Condition'
     end
-  end
-
-  def all_rules_valid?
-    total_children = Issue.where(:parent_id => issue.id, :tracker_id => tracker_id).count
-    total_children == @total_valid_children && total_children > 0
   end
 end
