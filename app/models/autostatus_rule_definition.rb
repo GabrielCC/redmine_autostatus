@@ -81,11 +81,11 @@ class AutostatusRuleDefinition < ActiveRecord::Base
       {
         # 1. Tracker de tip Feature se va muta in status In Progress cand sunt indeplinite
         # urmatoarele conditii
-        # -> feature-ul se afla in statusul Approved sau Ready For Implementation
+        # -> feature-ul se afla in statusul Ready For Implementation
         # -> cel putin un subtask te tip Task cu statusul In Progress
         target_status: 'In Progress',
         tracker: ['Feature'],
-        current_status: ['Approved', 'Ready For Implementation'],
+        current_status: ['Ready For Implementation'],
         conditions: [
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SINGLE,
