@@ -36,6 +36,9 @@ module AutostatusIssuePatch
                                            prop_key: 'status',
                                            old_value: old_status,
                                            value: self.status.name)
+      journal.details << JournalDetail.new(property: 'attr',
+                                           prop_key: 'autostatus',
+                                           value: 'Changed automatically')
       journal.save!
     end
   end

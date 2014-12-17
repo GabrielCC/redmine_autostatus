@@ -6,3 +6,4 @@ en:
   project_module_resources_workflows: Resources Workflow
   label_new_resources_statuses_allowed: Blocked statuses (need estimation)
   label_journal_resource_estimation: Resource estimation
+  field_autostatus: Status change
