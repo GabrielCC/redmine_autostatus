@@ -11,6 +11,8 @@ module AutostatusIssuePatch
   end
 
   module InstanceMethods
+    private
+
     def trigger_autostatus_rules
       manually_changed = status_id_changed?
       yield
@@ -32,14 +34,32 @@ module AutostatusIssuePatch
       end
       return unless old_status
       journal = init_journal(User.current, '')
-      journal.details << JournalDetail.new(property: 'attr',
-                                           prop_key: 'status',
-                                           old_value: old_status,
-                                           value: self.status.name)
-      journal.details << JournalDetail.new(property: 'attr',
-                                           prop_key: 'autostatus',
-                                           value: 'Changed automatically')
+      add_status_chage_to journal.details, old_status
+      add_autostatus_notice_to journal.details
       journal.save!
     end
+  end
+
+  def add_status_chage_to(details, old_status)
+    details.each do |detail|
+      next unless detail.prop_key == 'status_id'
+      detail.old_value = old_status
+      detail.value = self.status.name
+      return
+    end
+    details << JournalDetail.new(property: 'attr',
+                                 prop_key: 'status',
+                                 old_value: old_status,
+                                 value: self.status.name)
+  end
+
+  def add_autostatus_notice_to(details)
+    details.each do |detail|
+      next unless detail.prop_key == 'autostatus'
+      return
+    end
+    details << JournalDetail.new(property: 'attr',
+                                 prop_key: 'autostatus',
+                                 value: 'Changed automatically')
   end
 end
