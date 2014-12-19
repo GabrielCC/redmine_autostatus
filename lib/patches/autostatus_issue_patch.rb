@@ -11,8 +11,6 @@ module AutostatusIssuePatch
   end
 
   module InstanceMethods
-    private
-
     def trigger_autostatus_rules
       manually_changed = status_id_changed?
       yield
