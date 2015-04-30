@@ -35,6 +35,7 @@ module RedmineAutostatus
           add_status_chage_to journal.details, old_status
           add_autostatus_notice_to journal.details
           journal.save
+          true
         end
       end
 
