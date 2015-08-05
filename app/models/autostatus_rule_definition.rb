@@ -34,6 +34,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
     AutostatusTracker.destroy_all
     AutostatusRuleCondition.destroy_all
     AutostatusCurrentStatus.destroy_all
+    AutostatusRuleConditionStatus.destroy_all
 
     populating_rules.each do |rule|
       rule_definition = AutostatusRuleDefinition.new
