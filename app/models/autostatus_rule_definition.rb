@@ -38,11 +38,11 @@ class AutostatusRuleDefinition < ActiveRecord::Base
 
     populating_rules.each do |rule|
       rule_definition = AutostatusRuleDefinition.new
-      rule_definition.target_status_id = IssueStatus.find_by_name(rule[:target_status]).id
+      rule_definition.target_status_id = IssueStatus.where(name: rule[:target_status]).first.id
       rule_definition.save
 
       rule[:tracker].each do |tracker|
-        feature = Tracker.find_by_name tracker
+        feature = Tracker.where(name: tracker).first
         tracker = AutostatusTracker.new
         tracker.autostatus_rule_definition = rule_definition
         tracker.tracker_id = feature.id
@@ -51,7 +51,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
 
       rule[:current_status].each do |current_status|
         rule_current_status = AutostatusCurrentStatus.new
-        rule_current_status.issue_status_id = IssueStatus.find_by_name(current_status).id
+        rule_current_status.issue_status_id = IssueStatus.where(name: current_status).first.id
         rule_current_status.autostatus_rule_definition = rule_definition
         rule_current_status.save
       end
@@ -59,7 +59,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
       rule[:conditions].each do |condition|
         rule_condition = AutostatusRuleCondition.new
         rule_condition.rule_type = condition[:rule_type]
-        rule_condition.tracker_id = Tracker.find_by_name(condition[:tracker]).id if condition[:tracker]
+        rule_condition.tracker_id = Tracker.where(name: condition[:tracker]).first.id if condition[:tracker]
         rule_condition.rule_comparator = condition[:rule_comparator]
         rule_condition.rule_field_first = condition[:rule_field_first]
         rule_condition.rule_field_second = condition[:rule_field_second] if condition[:rule_field_second]
@@ -69,7 +69,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
         next unless condition[:rule_values]
         condition[:rule_values].each do |value|
           rule_condition_status = AutostatusRuleConditionStatus.new
-          rule_condition_status.issue_status_id = IssueStatus.find_by_name(value).id
+          rule_condition_status.issue_status_id = IssueStatus.where(name: value).first.id
           rule_condition_status.autostatus_rule_condition = rule_condition
           rule_condition_status.save
         end
