@@ -162,12 +162,6 @@ class AutostatusRuleDefinition < ActiveRecord::Base
         conditions: [
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
-            rule_comparator: 'gt',
-            rule_field_first: 'due_date',
-            rule_field_second: 'special_field_current_date'
-          },
-          {
-            rule_type: AutostatusRuleCondition::RULE_TYPE_SELF,
             rule_comparator: 'not_null',
             rule_field_first: 'assigned_to'
           },
