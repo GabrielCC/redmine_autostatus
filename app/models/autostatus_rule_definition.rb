@@ -112,7 +112,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
             tracker:  'Task',
             rule_comparator: 'in',
             rule_field_first: 'status_id',
-            rule_values: ['Completed', 'Killed', 'Party', 'Fixed', 'Delivered']
+            rule_values: ['Done', 'Killed']
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_ALL,
@@ -138,7 +138,7 @@ class AutostatusRuleDefinition < ActiveRecord::Base
             tracker: 'Task',
             rule_comparator: 'in',
             rule_field_first: 'status_id',
-            rule_values: ['Completed']
+            rule_values: ['Done']
           },
           {
             rule_type: AutostatusRuleCondition::RULE_TYPE_SINGLE,
