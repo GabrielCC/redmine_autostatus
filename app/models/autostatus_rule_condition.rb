@@ -46,7 +46,8 @@ class AutostatusRuleCondition < ActiveRecord::Base
       status_id: autostatus_rule_condition_statuses.pluck(:issue_status_id),
       tracker_id: tracker_id,
     ).count
-    total_children = Issue.where(parent_id: issue.id, tracker_id: tracker_id).count
+    total_children = Issue.where(parent_id: issue.id, tracker_id: tracker_id)
+      .count
     total_children == total_valid_children && total_children > 0
   end
 
@@ -57,7 +58,7 @@ class AutostatusRuleCondition < ActiveRecord::Base
     when 'current_date'
       Date.current
     else
-      raise Exception.new 'Unknown special field for the Autostatus Rule Condition'
+      raise 'Unknown special field for the Autostatus Rule Condition'
     end
   end
 
@@ -97,7 +98,7 @@ class AutostatusRuleCondition < ActiveRecord::Base
     when 'lte'
       first_value <= second_value
     else
-      raise Exception.new 'Unknown rule comparator for the Autostatus Rule Condition'
+      raise 'Unknown rule comparator for the Autostatus Rule Condition'
     end
   end
 end

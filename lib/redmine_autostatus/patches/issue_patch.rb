@@ -1,5 +1,3 @@
-require_dependency 'issue'
-
 module RedmineAutostatus
   module Patches
     module IssuePatch
@@ -62,6 +60,6 @@ module RedmineAutostatus
   end
 end
 
-unless Issue.included_modules.include? RedmineAutostatus::Patches::IssuePatch
-  Issue.send :include, RedmineAutostatus::Patches::IssuePatch
-end
+base = Issue
+new_module = RedmineAutostatus::Patches::IssuePatch
+base.send :include, new_module unless base.included_modules.include? new_module
