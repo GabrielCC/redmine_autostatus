@@ -1,4 +1,8 @@
-redmine_autostatus
-==================
+# Redmine Autostatus
 
-Redmine plugin - status automation for parent task
+Rules for automatic status transition.
+
+## Populate with Zitec's rules
+```
+rake redmine:plugins:redmine_autostatus:populate
+```
