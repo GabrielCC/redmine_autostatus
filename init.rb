@@ -6,10 +6,10 @@ ActionDispatch::Callbacks.to_prepare do
 end
 
 Redmine::Plugin.register :redmine_autostatus do
-  name 'Redmine Autostatus'
-  author 'Gabriel Croitoru'
-  description 'Redmine Autostatus Plugin for Parent Features'
-  version '1.0.1'
-  url 'http://gabrielcc.github.io/redmine_autostatus'
-  author_url 'http://gabrielcc.github.io/'
+  name 'Autostatus'
+  author 'Zitec'
+  description 'Rules for automatic status transition.'
+  version '1.0.2'
+  url 'https://github.com/sdwolf/redmine_autostatus'
+  author_url 'http://www.zitec.com'
 end
